@@ -1,6 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 
-namespace GeometryHolocaust
+namespace GeometryDestroyer
 {
     /// <summary>
     /// Defines an object that can be drawn.
@@ -10,6 +10,8 @@ namespace GeometryHolocaust
         /// <summary>
         /// Draws the object.
         /// </summary>
-        void Draw(IGameEngine engine, GameTime gameTime);
+        /// <param name="gameSystem">The game system to use.</param>
+        /// <param name="gameTime">The time in the game.</param>
+        void Draw(GameTime gameTime);
     }
 }

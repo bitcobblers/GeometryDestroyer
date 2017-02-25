@@ -1,8 +1,9 @@
 ﻿using System;
+using GeometryDestroyer.Parts;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace GeometryHolocaust
+namespace GeometryDestroyer
 {
     /// <summary>
     /// Defines a single particle.
@@ -31,7 +32,7 @@ namespace GeometryHolocaust
         /// <param name="model">The model to draw.</param>
         /// <param name="position">The position to root the particle at.</param>
         public Particle(EmitterDescription description, Color color, Model model, Vector3 position)
-            : base(model, 0.0f)
+            : base(model)
         {
             this.Position = position;
 
@@ -50,26 +51,16 @@ namespace GeometryHolocaust
         public bool IsAlive => this.timeToLive > 0;
 
         /// <inheritdoc />
-        public void Die(IGameEngine engine)
-        {
-        }
-
-        /// <inheritdoc />
-        public void Update(IGameEngine engine, GameTime gameTime)
+        public void Update(GameTime gameTime)
         {
             this.timeToLive--;
             this.offset += this.moveBy;
             this.scaleFactor -= this.scaleChange;
-        }
-
-        /// <inheritdoc />
-        public override void Move(IGameEngine engine, GameTime gameTime)
-        {
             this.World = Matrix.CreateScale(this.scaleFactor) * Matrix.CreateTranslation(new Vector3(0.0f, this.offset, 0.0f)) * Matrix.CreateRotationX(this.rotateX) * Matrix.CreateRotationY(this.rotateY) * Matrix.CreateRotationZ(this.rotateZ) * Matrix.CreateTranslation(this.Position);
         }
 
         /// <inheritdoc />
-        public override void Draw(IGameEngine engine, GameTime gameTime)
+        public override void Draw(GameTime gameTime)
         {
             foreach (var mesh in this.Model.Meshes)
             {
@@ -78,8 +69,8 @@ namespace GeometryHolocaust
                     effect.EnableDefaultLighting();
                     effect.AmbientLightColor = this.color;
                     effect.World = this.World;
-                    effect.View = engine.View;
-                    effect.Projection = engine.Projection;
+                    effect.View = this.CameraSystem.View;
+                    effect.Projection = this.CameraSystem.Projection;
                 }
 
                 mesh.Draw();

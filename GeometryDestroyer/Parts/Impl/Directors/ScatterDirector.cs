@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Diagnostics;
-using GeometryHolocaust.Enemies;
 using Microsoft.Xna.Framework;
+using GeometryDestroyer.Parts;
+using GeometryDestroyer.Parts.Impl.Enemies;
 
-namespace GeometryHolocaust.Directors
+namespace GeometryDestroyer.Parts.Impl.Directors
 {
     /// <summary>
     /// Defines a director that creates enemies at random locations.
@@ -21,9 +22,9 @@ namespace GeometryHolocaust.Directors
         /// <summary>
         /// Initializes a new instance of the <see cref="ScatterDirector" /> class.
         /// </summary>
-        /// <param name="spawnManager">The spawn manager to use.</param>
-        public ScatterDirector(SpawnManager spawnManager)
-            : base(spawnManager)
+        /// <param name="spawnSystem">The spawn manager to use.</param>
+        public ScatterDirector(ISpawnSystem spawnSystem, ICameraSystem cameraSystem)
+            : base(spawnSystem, cameraSystem)
         {
         }
 
@@ -40,14 +41,15 @@ namespace GeometryHolocaust.Directors
         }
 
         /// <inheritdoc />
-        public override void Run(IGameEngine engine)
+        public override void Update(GameTime gameTime)
         {
             if (this.spawnTimer.Elapsed > this.spawnInterval)
             {
-                var x = rnd.Next(engine.Bounds.Left, engine.Bounds.Right);
-                var y = rnd.Next(engine.Bounds.Top, engine.Bounds.Bottom);
+                var bounds = this.CameraSystem.Boundary;
+                var x = rnd.Next(bounds.Left, bounds.Right);
+                var y = rnd.Next(bounds.Top, bounds.Bottom);
 
-                engine.AddEnemy(this.SpawnManager.Random(EnemyType.Pinwheel, new Vector3(x, y, 0)));
+                this.SpawnSystem.Random(EnemyType.Pinwheel, new Vector3(x, y, 0));
                 this.spawnTimer.Restart();
             }
         }

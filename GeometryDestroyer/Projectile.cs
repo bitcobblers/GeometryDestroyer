@@ -1,13 +1,16 @@
-﻿using Microsoft.Xna.Framework;
+﻿using GeometryDestroyer.Parts;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace GeometryHolocaust
+namespace GeometryDestroyer
 {
     /// <summary>
     /// Defines a projectile shot by a player.
     /// </summary>
     public class Projectile : BoundedObject, ICanUpdate, ICanDie
     {
+        private readonly IEnemyComponent enemyComponent;
+        private readonly IParticleComponent particleComponent;
         private readonly Player owner;
         private readonly Vector2 direction;
         private readonly int power;
@@ -21,12 +24,13 @@ namespace GeometryHolocaust
         /// <param name="direction">The direction the particle is traveling.</param>
         /// <param name="power">The power of the projectile (i.e the amount of health to subtract from each enemy on hit).</param>
         public Projectile(Player owner, Model model, Vector3 position, Vector2 direction, int power)
-            : base(model, 1.0f)
+            : base(model)
         {
             this.owner = owner;
             this.direction = direction;
             this.power = power;
-
+            this.enemyComponent = ServiceLocator.Get<IEnemyComponent>();
+            this.particleComponent = ServiceLocator.Get<IParticleComponent>();
             this.Position = position;
         }
 
@@ -34,10 +38,14 @@ namespace GeometryHolocaust
         public bool IsAlive { get; private set; } = true;
 
         /// <inheritdoc />
-        public void Update(IGameEngine engine, GameTime gameTime)
+        public override void Update(GameTime gameTime)
         {
+            this.Position += new Vector3(this.direction.X, this.direction.Y, 0);
+            this.World = Matrix.CreateTranslation(this.Position.X, this.Position.Y, 0);
+            this.RecalculateSpheres();
+
             // Check for collisions with enemies.
-            foreach (var enemy in engine.Enemies)
+            foreach (var enemy in this.enemyComponent.Enemies)
             {
                 if (this.IntersectsWith(enemy))
                 {
@@ -47,24 +55,15 @@ namespace GeometryHolocaust
             }
 
             // Boundary check.
-            if (this.IsWithinBounds(engine.Bounds) == false)
+            if (this.IsWithinBounds(this.CameraSystem.Boundary) == false)
             {
                 this.IsAlive = false;
             }
-        }
 
-        /// <inheritdoc />
-        public override void Move(IGameEngine engine, GameTime gameTime)
-        {
-            this.Position += new Vector3(this.direction.X, this.direction.Y, 0);
-            this.World = Matrix.CreateTranslation(this.Position.X, this.Position.Y, 0);
-            this.RecalculateSpheres();
-        }
-
-        /// <inheritdoc />
-        public void Die(IGameEngine engine)
-        {
-            engine.AddExplosion(this.Position, Color.Yellow, ExplosionSize.Small);
+            if (this.IsAlive == false)
+            {
+                this.particleComponent.AddExplosion(EmitterDescription.Explosion, this.Position, Color.Yellow, ExplosionSize.Small);
+            }
         }
     }
 }

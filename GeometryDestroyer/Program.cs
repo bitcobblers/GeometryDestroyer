@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace GeometryHolocaust
+namespace GeometryDestroyer.Parts
 {
 #if WINDOWS || LINUX
     /// <summary>
@@ -14,7 +14,7 @@ namespace GeometryHolocaust
         [STAThread]
         static void Main()
         {
-            using (var game = new Game())
+            using (var game = new MainGame())
             {
                 game.Run();
             }

@@ -1,4 +1,4 @@
-﻿namespace GeometryHolocaust
+﻿namespace GeometryDestroyer
 {
     public enum ExplosionSize
     {

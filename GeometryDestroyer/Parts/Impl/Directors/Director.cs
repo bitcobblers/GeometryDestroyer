@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Diagnostics;
+using Microsoft.Xna.Framework;
 
-namespace GeometryHolocaust.Directors
+namespace GeometryDestroyer.Parts.Impl.Directors
 {
     /// <summary>
     /// Defines a base-line director.
@@ -13,10 +14,12 @@ namespace GeometryHolocaust.Directors
         /// <summary>
         /// Initializes a new instance of the <see cref="Director" /> class.
         /// </summary>
-        /// <param name="spawnManager">The spawn manager to use.</param>
-        protected Director(SpawnManager spawnManager)
+        /// <param name="spawnSystem">The spawn manager to use.</param>
+        protected Director(ISpawnSystem spawnSystem, ICameraSystem cameraSystem)
         {
-            this.SpawnManager = spawnManager;
+            this.SpawnSystem = spawnSystem;
+            this.CameraSystem = cameraSystem;
+
             this.timer.Start();
         }
 
@@ -50,7 +53,12 @@ namespace GeometryHolocaust.Directors
         /// <summary>
         /// Gets the spawn manager to use.
         /// </summary>
-        protected SpawnManager SpawnManager { get; }
+        protected ISpawnSystem SpawnSystem { get; }
+
+        /// <summary>
+        /// Gets the camera system to use.
+        /// </summary>
+        protected ICameraSystem CameraSystem { get; }
 
         /// <summary>
         /// Resets the director so that it can be run.
@@ -65,9 +73,9 @@ namespace GeometryHolocaust.Directors
         }
 
         /// <summary>
-        /// Runs the director.
+        /// Updates the director.
         /// </summary>
-        /// <param name="engine">The game engine.</param>
-        public abstract void Run(IGameEngine engine);
+        /// <param name="gameSystem">The game system.</param>
+        public abstract void Update(GameTime gameTime);
     }
 }

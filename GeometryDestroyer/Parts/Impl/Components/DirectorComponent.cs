@@ -1,54 +1,67 @@
 ﻿using System;
-using GeometryHolocaust.Directors;
-using Microsoft.Xna.Framework.Content;
+using GeometryDestroyer.Parts.Impl.Directors;
+using Microsoft.Xna.Framework;
 
-namespace GeometryHolocaust
+namespace GeometryDestroyer.Parts.Impl.Components
 {
-    public class DirectorManager
+    public class DirectorComponent : BaseDrawableGameComponent, IDirectorComponent
     {
         private const double TimeCoefficient = 2.5 * 1000.0;
 
         private readonly Random rnd = new Random();
-        private readonly IGameEngine engine;
-        private readonly Director[] allDirectors;
 
+        private Director[] allDirectors;
         private Director currentDirector;
         private double levelTime = TimeSpan.FromSeconds(30).TotalMilliseconds;
         private int level = 0;
 
         /// <summary>
-        /// Triggered whenever the level is incremented.
+        /// Initializes a new instance of the <see cref="DirectorComponent" /> class.
         /// </summary>
-        public event Action LevelIncreased = delegate { };
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="GameDirector" /> class.
-        /// </summary>
-        /// <param name="engine">The current game engine.</param>
-        /// <param name="content">The content manager to use.</param>
-        public DirectorManager(IGameEngine engine, ContentManager content)
+        public DirectorComponent(Game game)
+            : base(game)
         {
-            var spawnManager = new SpawnManager(content);
+            ServiceLocator.Register<IDirectorComponent>(this);
 
-            this.engine = engine;
-            this.allDirectors = new[]
+        }
+
+        /// <inheritdoc />
+        public event EventHandler LevelIncreased = delegate { };
+
+        // Dependencies.
+        public ISpawnSystem SpawnSystem { get; private set; }
+        public ICameraSystem CameraSystem { get; private set; }
+
+        public override void Initialize()
+        {
+            base.Initialize();
+            this.SpawnSystem = ServiceLocator.Get<ISpawnSystem>();
+            this.CameraSystem = ServiceLocator.Get<ICameraSystem>();
+            this.GameSystem.GameReset += this.Reset;
+
+            this.allDirectors = new Director[]
             {
-                new ScatterDirector(spawnManager)
+                new ScatterDirector(this.SpawnSystem, this.CameraSystem),
+                new SpiralDirector(this.SpawnSystem, this.CameraSystem)
             };
         }
 
-        public void Reset()
+        /// <inheritdoc />
+        public void Reset(object sender, EventArgs e)
         {
             this.currentDirector = null;
             this.levelTime = TimeSpan.FromSeconds(30).TotalMilliseconds;
-            int level = 0;
+            this.level = 0;
         }
 
-        /// <summary>
-        /// Updated the director.
-        /// </summary>
-        public void Update()
+        /// <inheritdoc />
+        public override void Update(GameTime gameTime)
         {
+            if (this.SuppressUpdate)
+            {
+                return;
+            }
+
             if (this.currentDirector == null || this.currentDirector.RemainingTime <= TimeSpan.Zero)
             {
                 // Automatically increment the level if all of the enemies have been wiped out. or the level timer has elapsed.
@@ -57,7 +70,7 @@ namespace GeometryHolocaust
             else
             {
                 // Update the director.
-                this.currentDirector.Run(this.engine);
+                this.currentDirector.Update(gameTime);
             }
         }
 
@@ -68,7 +81,7 @@ namespace GeometryHolocaust
         {
             this.level++;
             this.levelTime -= TimeCoefficient * (1.0 / this.level);
-            this.LevelIncreased();
+            this.LevelIncreased(this, EventArgs.Empty);
 
             do
             {

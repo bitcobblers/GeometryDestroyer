@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace GeometryHolocaust.Enemies
+namespace GeometryDestroyer.Parts.Impl.Enemies
 {
     /// <summary>
     /// Defines the type of enemies.

@@ -1,19 +1,24 @@
-﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
+﻿using Microsoft.Xna.Framework.Graphics;
 
-namespace GeometryHolocaust.Enemies
+namespace GeometryDestroyer.Parts.Impl.Enemies
 {
 
-    public abstract class Enemy : BoundedObject, ICanUpdate, ICanDie
+    public abstract class Enemy : BoundedObject, ICanDie
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="Enemy" /> class.
         /// </summary>
         /// <param name="model">The model for the enemy.</param>
-        public Enemy(Model model, float mass)
-            : base(model, mass)
+        public Enemy(Model model)
+            : base(model)
         {
+            this.ParticleComponent = ServiceLocator.Get<IParticleComponent>();
         }
+
+        /// <summary>
+        /// Gets the particle component to use.
+        /// </summary>
+        public IParticleComponent ParticleComponent { get; }
 
         /// <inheritdoc />
         public virtual bool IsAlive => this.Health > 0;
@@ -28,14 +33,6 @@ namespace GeometryHolocaust.Enemies
         /// </summary>
         public abstract int Health { get; set; }
 
-        /// <inheritdoc />
-        public abstract void Die(IGameEngine engine);
-
-        /// <inheritdoc />
-        public virtual void Update(IGameEngine engine, GameTime gameTime)
-        {
-        }
-
         /// <summary>
         /// Applies damage to the enemy and returns the 'value' of the hit.
         /// </summary>
@@ -45,14 +42,22 @@ namespace GeometryHolocaust.Enemies
         {
             this.Health -= damage;
 
-            if(this.Health <= 0)
+            if (this.Health <= 0)
             {
+                this.OnDestroyed();
                 return this.Value;
             }
             else
             {
                 return 0;
             }
+        }
+
+        /// <summary>
+        /// Triggered whenever an enemy is killed.
+        /// </summary>
+        protected virtual void OnDestroyed()
+        {
         }
     }
 }

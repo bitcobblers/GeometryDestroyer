@@ -2,7 +2,7 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace GeometryHolocaust.Enemies
+namespace GeometryDestroyer.Parts.Impl.Enemies
 {
     /// <summary>
     /// Defines a pin-wheel enemy.
@@ -24,7 +24,7 @@ namespace GeometryHolocaust.Enemies
         /// Initializes a new instance of the <see cref="Pinwheel" /> class.
         /// </summary>
         public Pinwheel(Model model, Vector3 position)
-            : base(model, 10.0f)
+            : base(model)
         {
             var angle = MathHelper.ToRadians(rnd.Next(0, 360));
 
@@ -40,7 +40,7 @@ namespace GeometryHolocaust.Enemies
         public override int Health { get; set; } = 1;
 
         /// <inheritdoc />
-        public override void Move(IGameEngine engine, GameTime gameTime)
+        public override void Update(GameTime gameTime)
         {
             this.Rotation += TwoPie * (RotationSpeed * (float)gameTime.ElapsedGameTime.TotalSeconds);
 
@@ -49,16 +49,17 @@ namespace GeometryHolocaust.Enemies
                 this.Rotation -= TwoPie;
             }
 
-            this.direction = this.BounceMovement(engine.Bounds, this.direction);
+            this.direction = this.BounceMovement(this.CameraSystem.Boundary, this.direction);
             this.Position += this.direction * (float)(gameTime.ElapsedGameTime.TotalSeconds * MovementSpeed);
 
-            base.Move(engine, gameTime);
+            // Update collision detection.
+            base.Update(gameTime);
         }
 
         /// <inheritdoc />
-        public override void Die(IGameEngine engine)
+        protected override void OnDestroyed()
         {
-            engine.AddExplosion(this.Position, Color.Purple, ExplosionSize.Large);
+            this.ParticleComponent.AddExplosion(EmitterDescription.Explosion, this.Position, Color.Purple, ExplosionSize.Large);
         }
     }
 }

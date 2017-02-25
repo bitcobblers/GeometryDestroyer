@@ -1,7 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace GeometryHolocaust.Enemies
+namespace GeometryDestroyer.Parts.Impl.Enemies
 {
     /// <summary>
     /// Defines a spiral enemy.  Spirals are stationary and emit a gravity field that draws everything towards it.
@@ -14,7 +14,7 @@ namespace GeometryHolocaust.Enemies
         /// Initializes a new instance of the <see cref="Spiral" /> class.
         /// </summary>
         public Spiral(Model model, Vector3 position)
-            : base(model, 500.0f)
+            : base(model)
         {
             this.Position = position;
             this.Scale = new Vector3(3, 3, 3);
@@ -27,27 +27,23 @@ namespace GeometryHolocaust.Enemies
         public override int Health { get; set; } = 250;
 
         /// <inheritdoc />
-        public override void Move(IGameEngine engine, GameTime gameTime)
+        public override void Update(GameTime gameTime)
         {
             this.Rotation += OneDegree;
 
-            if(this.Rotation > MathHelper.TwoPi)
+            if (this.Rotation > MathHelper.TwoPi)
             {
                 this.Rotation -= MathHelper.TwoPi;
             }
 
-            base.Move(engine, gameTime);
+            // Update boundaries.
+            base.Update(gameTime);
         }
 
         /// <inheritdoc />
-        public override void Update(IGameEngine engine, GameTime gameTime)
+        protected override void OnDestroyed()
         {
-        }
-
-        /// <inheritdoc />
-        public override void Die(IGameEngine engine)
-        {
-            engine.AddExplosion(this.Position, Color.SteelBlue, ExplosionSize.Huge);
+            this.ParticleComponent.AddExplosion(EmitterDescription.Explosion, this.Position, Color.SteelBlue, ExplosionSize.Huge);
         }
     }
 }

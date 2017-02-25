@@ -1,94 +1,29 @@
 ﻿using System.Collections.Generic;
+using GeometryDestroyer.Parts;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace GeometryHolocaust
+namespace GeometryDestroyer
 {
-    public class PhysicsObject
-    {
-        /// <summary>
-        /// Gravitational constant.
-        /// </summary>
-        private const float G = 6.674f;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="PhysicsObject" /> class.
-        /// </summary>
-        /// <param name="mass">The mass of the object.</param>
-        public PhysicsObject(float mass)
-        {
-            this.Mass = mass;
-        }
-
-        /// <summary>
-        /// Gets or sets the mass of the object.
-        /// </summary>
-        public float Mass { get; set; }
-
-        /// <summary>
-        /// Gets or sets the position of the object.
-        /// </summary>
-        public Vector3 Position { get; set; }
-
-        /// <summary>
-        /// Gets or sets the velocity of the object.
-        /// </summary>
-        public Vector3 Velocity { get; set; }
-
-        /// <summary>
-        /// Applies a force to the object.
-        /// </summary>
-        /// <param name="force">The force vector to apply.</param>
-        protected void ApplyForce(Vector3 force)
-        {
-            this.Velocity += force;
-        }
-
-        /// <summary>
-        /// Pulls an object toward itself (or vice versa).
-        /// </summary>
-        /// <param name="obj">The object to pull.</param>
-        protected void Pull(PhysicsObject obj)
-        {
-            obj.ApplyForce(GravitationalForce(this, obj));
-        }
-
-        /// <summary>
-        /// Calculates the gravitational force between two objects and returns a vector from the smaller object to larger one.
-        /// </summary>
-        /// <param name="obj1">The first object to compare.</param>
-        /// <param name="obj2">The second object to compare.</param>
-        /// <returns>The resultant vector between two objects with gravity applied.</returns>
-        private static Vector3 GravitationalForce(PhysicsObject obj1, PhysicsObject obj2)
-        {
-            var distance = Vector3.DistanceSquared(obj1.Position, obj2.Position);
-            var force = (G * obj1.Mass * obj2.Mass) / distance;
-
-            if (obj1.Mass > obj2.Mass)
-            {
-                return (obj1.Position - obj2.Position) * force;
-            }
-            else
-            {
-                return (obj2.Position - obj1.Position) * force;
-            }
-        }
-    }
-
     /// <summary>
     /// Defines an object that is aware of the game boundaries.
     /// </summary>
-    public class BoundedObject : PhysicsObject, ICanDraw, ICanMove
-    {
+    public class BoundedObject : ICanDraw, ICanUpdate
+    { 
         /// <summary>
         /// Initializes a new instance of the <see cref="BoundedObject" /> class.
         /// </summary>
         /// <param name="model">The model for the object.</param>
-        public BoundedObject(Model model, float mass)
-            : base(mass)
+        public BoundedObject(Model model)
         {
             this.Model = model;
+            this.CameraSystem = ServiceLocator.Get<ICameraSystem>();
         }
+
+        /// <summary>
+        /// Gets the camera system to use.
+        /// </summary>
+        public ICameraSystem CameraSystem { get; }
 
         /// <summary>
         /// Gets or sets the model to draw.
@@ -100,10 +35,10 @@ namespace GeometryHolocaust
         /// </summary>
         public IList<BoundingSphere> Spheres { get; protected set; } = new List<BoundingSphere>();
 
-        /// <summary>
-        /// Gets or sets the position of the object.
-        /// </summary>
-        //public Vector3 Position { get; set; }
+        // <summary>
+        // Gets or sets the position of the object.
+        // </summary>
+        public Vector3 Position { get; set; }
 
         /// <summary>
         /// Gets or sets the angle of ratation for the object.
@@ -121,7 +56,7 @@ namespace GeometryHolocaust
         public Vector3 Scale { get; set; } = new Vector3(1, 1, 1);
 
         /// <inheritdoc />
-        public virtual void Draw(IGameEngine engine, GameTime gameTime)
+        public virtual void Draw(GameTime gameTime)
         {
             foreach (var mesh in this.Model.Meshes)
             {
@@ -129,8 +64,8 @@ namespace GeometryHolocaust
                 {
                     effect.EnableDefaultLighting();
                     effect.World = this.World;
-                    effect.View = engine.View;
-                    effect.Projection = engine.Projection;
+                    effect.View = this.CameraSystem.View;
+                    effect.Projection = this.CameraSystem.Projection;
                 }
 
                 mesh.Draw();
@@ -138,9 +73,9 @@ namespace GeometryHolocaust
         }
 
         /// <inheritdoc />
-        public virtual void Move(IGameEngine engine, GameTime gameTime)
+        public virtual void Update(GameTime gameTime)
         {
-            this.World = Matrix.CreateScale(this.Scale) * Matrix.CreateRotationZ(this.Rotation) * Matrix.CreateTranslation(this.Position.X, this.Position.Y, 0.0f);
+            this.RecalculateWorld();
             this.RecalculateSpheres();
         }
 
@@ -163,6 +98,14 @@ namespace GeometryHolocaust
             }
 
             return false;
+        }
+
+        /// <summary>
+        /// Recalcualtes the world matrix.
+        /// </summary>
+        protected virtual void RecalculateWorld()
+        {
+            this.World = Matrix.CreateScale(this.Scale) * Matrix.CreateRotationZ(this.Rotation) * Matrix.CreateTranslation(this.Position.X, this.Position.Y, 0.0f);
         }
 
         /// <summary>
