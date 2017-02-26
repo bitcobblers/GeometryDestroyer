@@ -18,16 +18,33 @@ namespace GeometryDestroyer.Parts.Impl.Components
         }
 
         /// <summary>
-        /// Gets or sets the list system to use
+        /// Gets the list system to use
         /// </summary>
         public IListSystem ListSystem { get; private set; }
+
+        /// <summary>
+        /// Gets the game system to use.
+        /// </summary>
+        public IGameSystem GameSystem { get; private set; }
 
         /// <inheritdoc />
         public override void Initialize()
         {
             base.Initialize();
             this.ListSystem = ServiceLocator.Get<IListSystem>();
+            this.GameSystem = ServiceLocator.Get<IGameSystem>();
+
             this.GameSystem.GameReset += (s, e) => this.enemies.Clear();
+            this.GameSystem.StateChanged += (s, e) =>
+            {
+                if (e == GameState.GameOver)
+                {
+                    foreach (var enemy in this.enemies)
+                    {
+                        enemy.Damage(int.MaxValue);
+                    }
+                }
+            };
         }
 
         /// <inheritdoc />
@@ -45,6 +62,11 @@ namespace GeometryDestroyer.Parts.Impl.Components
         /// <inheritdoc />
         public override void Draw(GameTime gameTime)
         {
+            if(this.GameSystem.State != GameState.Running)
+            {
+                return;
+            }
+
             this.ListSystem.DrawCollection(gameTime, this.enemies);
         }
 

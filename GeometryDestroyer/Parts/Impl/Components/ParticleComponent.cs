@@ -27,8 +27,7 @@ namespace GeometryDestroyer.Parts.Impl.Components
         /// </summary>
         public ICameraSystem CameraSystem { get; private set; }
 
-        public int Count => this.particles.Count;
-
+        /// <inheritdoc />
         public override void Initialize()
         {
             base.Initialize();
@@ -40,11 +39,6 @@ namespace GeometryDestroyer.Parts.Impl.Components
         /// <inheritdoc />
         public override void Update(GameTime gameTime)
         {
-            if (this.SuppressUpdate)
-            {
-                return;
-            }
-
             this.ListSystem.UpdateCollection(gameTime, this.particles);
             this.ListSystem.RemoveDeadCollection(this.particles);
         }

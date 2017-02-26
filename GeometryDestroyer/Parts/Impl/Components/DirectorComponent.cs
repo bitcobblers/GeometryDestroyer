@@ -22,7 +22,6 @@ namespace GeometryDestroyer.Parts.Impl.Components
             : base(game)
         {
             ServiceLocator.Register<IDirectorComponent>(this);
-
         }
 
         /// <inheritdoc />
@@ -31,12 +30,15 @@ namespace GeometryDestroyer.Parts.Impl.Components
         // Dependencies.
         public ISpawnSystem SpawnSystem { get; private set; }
         public ICameraSystem CameraSystem { get; private set; }
+        public IPlayerComponent PlayerComponent { get; private set; }
 
+        /// <inheritdoc />
         public override void Initialize()
         {
             base.Initialize();
             this.SpawnSystem = ServiceLocator.Get<ISpawnSystem>();
             this.CameraSystem = ServiceLocator.Get<ICameraSystem>();
+            this.PlayerComponent = ServiceLocator.Get<IPlayerComponent>();
             this.GameSystem.GameReset += this.Reset;
 
             this.allDirectors = new Director[]
@@ -57,7 +59,7 @@ namespace GeometryDestroyer.Parts.Impl.Components
         /// <inheritdoc />
         public override void Update(GameTime gameTime)
         {
-            if (this.SuppressUpdate)
+            if (this.SuppressUpdate || this.PlayerComponent.ActivePlayers == 0)
             {
                 return;
             }

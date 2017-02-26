@@ -48,7 +48,7 @@ namespace GeometryDestroyer.Parts.Impl.Components
         /// <param name="e">The new state of the game.</param>
         private void GameSystem_StateChanged(object sender, GameState e)
         {
-            this.SuppressUpdate = e == GameState.Paused;
+            this.SuppressUpdate = (e != GameState.Running);
         }
 
         /// <inheritdoc />

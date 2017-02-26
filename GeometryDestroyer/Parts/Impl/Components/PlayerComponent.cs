@@ -8,6 +8,8 @@ namespace GeometryDestroyer.Parts.Impl.Components
 {
     public class PlayerComponent : BaseDrawableGameComponent, IPlayerComponent
     {
+        private readonly static TimeSpan RespawnInterval = TimeSpan.FromSeconds(5);
+
         private readonly List<Player> players = new List<Player>();
         private Model playerModel;
 
@@ -20,10 +22,16 @@ namespace GeometryDestroyer.Parts.Impl.Components
             ServiceLocator.Register<IPlayerComponent>(this);
         }
 
-        public IListSystem ListSystem { get; private set; }
+        public IGameSystem GameSystem { get; private set; }
         public IControllerSystem ControllerSystem { get; private set; }
         public IGunSystem GunSystem { get; private set; }
         public IDirectorComponent DirectorSystem { get; private set; }
+
+        /// <inheritdoc />
+        public int AvailablePlayers => this.players.Count(p => p.LivesRemaining >= 0);
+
+        /// <inheritdoc />
+        public int ActivePlayers => this.players.Count(p => p.IsActive);
 
         /// <inheritdoc />
         public IEnumerable<Player> Players => this.players;
@@ -34,7 +42,7 @@ namespace GeometryDestroyer.Parts.Impl.Components
             base.Initialize();
 
             this.playerModel = this.Game.Content.Load<Model>("Models/Player");
-            this.ListSystem = ServiceLocator.Get<IListSystem>();
+            this.GameSystem = ServiceLocator.Get<IGameSystem>();
             this.ControllerSystem = ServiceLocator.Get<IControllerSystem>();
             this.GunSystem = ServiceLocator.Get<IGunSystem>();
             this.DirectorSystem = ServiceLocator.Get<IDirectorComponent>();
@@ -44,13 +52,35 @@ namespace GeometryDestroyer.Parts.Impl.Components
         /// <inheritdoc />
         public override void Update(GameTime gameTime)
         {
-            this.ListSystem.UpdateCollection(gameTime, this.players);
+            if (this.SuppressUpdate)
+            {
+                return;
+            }
+
+            foreach (var player in this.players)
+            {
+                if (player.IsActive)
+                {
+                    player.Update(gameTime);
+                }
+                else if (player.LivesRemaining >= 0 && (DateTime.Now - player.KillTime) > RespawnInterval)
+                {
+                    player.IsActive = true;
+                    player.Position = new Vector3(0, 0, 0);
+                }
+            }
         }
 
         /// <inheritdoc />
         public override void Draw(GameTime gameTime)
         {
-            this.ListSystem.DrawCollection(gameTime, this.players);
+            foreach (var player in this.players)
+            {
+                if (player.IsActive)
+                {
+                    player.Draw(gameTime);
+                }
+            }
         }
 
         /// <inheritdoc />
@@ -58,6 +88,11 @@ namespace GeometryDestroyer.Parts.Impl.Components
         {
             this.players.Clear();
             this.players.AddRange(this.ControllerSystem.GetControllers().Select(c => new Player(c, this.playerModel)));
+
+            foreach(var player in this.players)
+            {
+                this.GameSystem.RegisterPlayer(player);
+            }
         }
     }
 }

@@ -9,14 +9,20 @@ namespace GeometryDestroyer
     /// <summary>
     /// Defines a game player.
     /// </summary>
-    public class Player : BoundedObject, ICanDie, ICanBeKilled, IDisposable
+    public class Player : BoundedObject, ICanBeKilled, IDisposable
     {
         private readonly IMathSystem mathSystem;
         private readonly IGunSystem gunSystem;
         private readonly IDirectorComponent directorSystem;
         private readonly IParticleComponent particleComponent;
+        private readonly GameController controller;
         private readonly Random rnd = new Random();
         private Gun currentGun;
+
+        /// <summary>
+        /// Triggered when the player has been eliminated from the game.
+        /// </summary>
+        public event EventHandler PlayerEliminated = delegate { };
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Player" /> class.
@@ -26,7 +32,7 @@ namespace GeometryDestroyer
         public Player(GameController controller, Model model)
             : base(model)
         {
-            this.Controller = controller;
+            this.controller = controller;
             this.mathSystem = ServiceLocator.Get<IMathSystem>();
             this.gunSystem = ServiceLocator.Get<IGunSystem>();
             this.directorSystem = ServiceLocator.Get<IDirectorComponent>();
@@ -47,25 +53,32 @@ namespace GeometryDestroyer
         /// <summary>
         /// Gets the id of the player.
         /// </summary>
-        public PlayerIndex Id => this.Controller.Id;
-
-        /// <summary>
-        /// Gets the controller bound to the player.
-        /// </summary>
-        public GameController Controller { get; }
+        public PlayerIndex Id => this.controller.Id;
 
         /// <summary>
         /// Gets or sets score of the player.
         /// </summary>
         public int Score { get; set; }
 
-        /// <inheritdoc />
-        public bool IsAlive { get; private set; } = true;
+        /// <summary>
+        /// Gets or sets the number of lives remaining for the player.
+        /// </summary>
+        public int LivesRemaining { get; set; } = 1;
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the player is active.
+        /// </summary>
+        public bool IsActive { get; set; } = true;
+
+        /// <summary>
+        /// Gets the time when the player was last killed.
+        /// </summary>
+        public DateTime KillTime { get; private set; }
 
         /// <inheritdoc />
         public override void Update(GameTime gameTime)
         {
-            var state = this.Controller.State;
+            var state = this.controller.State;
             var shootX = state.ThumbSticks.Right.X;
             var shootY = state.ThumbSticks.Right.Y;
             var rotateX = state.ThumbSticks.Left.X;
@@ -94,8 +107,17 @@ namespace GeometryDestroyer
         /// <inheritdoc />
         public void Kill()
         {
-            this.IsAlive = false;
-            this.particleComponent.AddExplosion(EmitterDescription.Explosion, this.Position, Color.White, ExplosionSize.Large);
+            this.KillTime = DateTime.Now;
+            this.IsActive = false;
+            this.LivesRemaining--;
+            this.particleComponent.AddExplosion(EmitterDescription.Explosion, this.Position, Color.Red, ExplosionSize.Large);
+            this.particleComponent.AddExplosion(EmitterDescription.Explosion, this.Position, Color.SteelBlue, ExplosionSize.Large);
+            this.particleComponent.AddExplosion(EmitterDescription.Explosion, this.Position, Color.White, ExplosionSize.Huge);
+
+            if (this.LivesRemaining < 0)
+            {
+                this.PlayerEliminated(this, EventArgs.Empty);
+            }
         }
 
         /// <inheritdoc />

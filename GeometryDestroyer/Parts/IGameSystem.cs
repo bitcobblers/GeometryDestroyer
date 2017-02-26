@@ -26,6 +26,12 @@ namespace GeometryDestroyer.Parts
         void Reset();
 
         /// <summary>
+        /// Registers an active player with the game.
+        /// </summary>
+        /// <param name="player">The player to register.</param>
+        void RegisterPlayer(Player player);
+
+        /// <summary>
         /// Toggles whether the game is paused or unpaused.
         /// </summary>
         void TogglePaused();

@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework.Graphics;
+﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace GeometryDestroyer.Parts.Impl.Enemies
 {
@@ -12,8 +13,14 @@ namespace GeometryDestroyer.Parts.Impl.Enemies
         public Enemy(Model model)
             : base(model)
         {
+            this.PlayerComponent = ServiceLocator.Get<IPlayerComponent>();
             this.ParticleComponent = ServiceLocator.Get<IParticleComponent>();
         }
+
+        /// <summary>
+        /// Gets the player component tou se.
+        /// </summary>
+        public IPlayerComponent PlayerComponent { get; }
 
         /// <summary>
         /// Gets the particle component to use.
@@ -50,6 +57,22 @@ namespace GeometryDestroyer.Parts.Impl.Enemies
             else
             {
                 return 0;
+            }
+        }
+
+        public override void Update(GameTime gameTime)
+        {
+            // Update collision detection.
+            base.Update(gameTime);
+
+            // Check for collisions with players.
+            foreach (var player in this.PlayerComponent.Players)
+            {
+                if (this.IntersectsWith(player))
+                {
+                    player.Kill();
+                    this.Damage(int.MaxValue);
+                }
             }
         }
 

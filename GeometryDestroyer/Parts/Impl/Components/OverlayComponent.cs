@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace GeometryDestroyer.Parts.Impl.Components
@@ -30,7 +31,7 @@ namespace GeometryDestroyer.Parts.Impl.Components
         /// <summary>
         /// Gets or sets the player system to use.
         /// </summary>
-        public IPlayerComponent PlayerSystem { get; private set; }
+        public IPlayerComponent PlayerComponent { get; private set; }
 
         private IParticleComponent particles;
 
@@ -39,12 +40,21 @@ namespace GeometryDestroyer.Parts.Impl.Components
         {
             this.GameSystem = ServiceLocator.Get<IGameSystem>();
             this.CameraSystem = ServiceLocator.Get<ICameraSystem>();
-            this.PlayerSystem = ServiceLocator.Get<IPlayerComponent>();
+            this.PlayerComponent = ServiceLocator.Get<IPlayerComponent>();
             this.particles = ServiceLocator.Get<IParticleComponent>();
 
             this.spriteBatch = new SpriteBatch(this.GraphicsDevice);
             this.titleFont = this.Game.Content.Load<SpriteFont>("Fonts/Title");
             this.overlayFont = this.Game.Content.Load<SpriteFont>("Fonts/Overlay");
+        }
+
+        /// <inheritdoc />
+        protected override void LoadContent()
+        {
+            // Load the dependencies.
+            this.GameSystem = ServiceLocator.Get<IGameSystem>();
+            this.CameraSystem = ServiceLocator.Get<ICameraSystem>();
+            this.PlayerComponent = ServiceLocator.Get<IPlayerComponent>();
         }
 
         /// <inheritdoc />
@@ -59,32 +69,18 @@ namespace GeometryDestroyer.Parts.Impl.Components
                     this.DrawCenteredText(this.overlayFont, "Press Start to Begin", 50);
                     break;
                 case GameState.Running:
+                    this.DrawScores();
+
+                    if (this.PlayerComponent.ActivePlayers == 0)
+                    {
+                        this.DrawCenteredText(this.titleFont, "Get Ready...", 0);
+                    }
+                    break;
                 case GameState.Paused:
-                    {
-                        float x = 10;
-                        float y = 10;
-
-                        // Render the players and their scores.
-                        foreach (var player in this.PlayerSystem.Players)
-                        {
-                            var left = player.Controller.State.ThumbSticks.Left;
-                            var right = player.Controller.State.ThumbSticks.Right;
-
-                            this.spriteBatch.DrawString(this.overlayFont, $"Player {player.Id}: {player.Score:N0}", new Vector2(x, y), Color.White);
-                            y += 20;
-                        }
-
-                        this.spriteBatch.DrawString(this.overlayFont, $"Particles: {this.particles.Count:N0}", new Vector2(x, y), Color.White);
-                    }
-
-                    if (this.GameSystem.State == GameState.Paused)
-                    {
-                        this.DrawCenteredText(this.overlayFont, "Paused", 0);
-                    }
-
+                    this.DrawCenteredText(this.overlayFont, "Paused", 0);
                     break;
                 case GameState.GameOver:
-                    this.DrawCenteredText(this.titleFont, "GAME OVER", 0);
+                    this.DrawCenteredText(this.titleFont, "GAME OVER LOSER", 0);
                     this.DrawCenteredText(this.overlayFont, "Press Start to Play Again", 50);
                     break;
             }
@@ -92,13 +88,20 @@ namespace GeometryDestroyer.Parts.Impl.Components
             this.spriteBatch.End();
         }
 
-        /// <inheritdoc />
-        protected override void LoadContent()
+        /// <summary>
+        /// Draws the player scores and status information.
+        /// </summary>
+        private void DrawScores()
         {
-            // Load the dependencies.
-            this.GameSystem = ServiceLocator.Get<IGameSystem>();
-            this.CameraSystem = ServiceLocator.Get<ICameraSystem>();
-            this.PlayerSystem = ServiceLocator.Get<IPlayerComponent>();
+            float x = 10;
+            float y = 10;
+
+            // Render the players and their scores.
+            foreach (var player in this.PlayerComponent.Players)
+            {
+                this.spriteBatch.DrawString(this.overlayFont, $"Player {player.Id}: Lives {Math.Max(player.LivesRemaining, 0)}, Score: {player.Score:N0}", new Vector2(x, y), Color.White);
+                y += 20;
+            }
         }
 
         /// <summary>

@@ -7,8 +7,6 @@ namespace GeometryDestroyer.Parts
     /// </summary>
     public interface IParticleComponent : IGameComponent
     {
-        int Count { get; }
-
         /// <summary>
         /// Creates an explosion type particle effect.
         /// </summary>
