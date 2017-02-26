@@ -77,7 +77,7 @@ namespace GeometryDestroyer.Parts.Impl.Components
                     }
                     break;
                 case GameState.Paused:
-                    this.DrawCenteredText(this.overlayFont, "Paused", 0);
+                    this.DrawCenteredText(this.titleFont, "Paused", 0);
                     break;
                 case GameState.GameOver:
                     this.DrawCenteredText(this.titleFont, "GAME OVER LOSER", 0);

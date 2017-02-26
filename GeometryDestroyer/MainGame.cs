@@ -30,14 +30,10 @@ namespace GeometryDestroyer
         /// <inheritdoc />
         protected override void Initialize()
         {
-            // Register services.
-            ServiceLocator.Register<IGameSystem>(new GameSystem());
-            ServiceLocator.Register<IMathSystem>(new MathSystem());
-            ServiceLocator.Register<IListSystem>(new ListSystem());
-            ServiceLocator.Register<ISpawnSystem>(new SpawnSystem(this.Content));
-            ServiceLocator.Register<ICameraSystem>(new CameraSystem(this.graphics, 50));
-            ServiceLocator.Register<IGunSystem>(new GunSystem());
-            ServiceLocator.Register<IControllerSystem>(new ControllerSystem());
+            this.graphics.PreferredBackBufferWidth = this.GraphicsDevice.DisplayMode.Width;
+            this.graphics.PreferredBackBufferHeight = this.GraphicsDevice.DisplayMode.Height;
+            this.graphics.ApplyChanges();
+            this.graphics.ToggleFullScreen();
 
             // Register components.
             this.Components.Add(new BackgroundComponent(this));
@@ -48,10 +44,14 @@ namespace GeometryDestroyer
             this.Components.Add(new DirectorComponent(this));
             this.Components.Add(new ProjectileComponent(this));
 
-            //this.graphics.PreferredBackBufferWidth = this.GraphicsDevice.DisplayMode.Width;
-            //this.graphics.PreferredBackBufferHeight = this.GraphicsDevice.DisplayMode.Height;
-            //this.graphics.ApplyChanges();
-            //this.graphics.ToggleFullScreen();
+            // Register services.
+            ServiceLocator.Register<IGameSystem>(new GameSystem());
+            ServiceLocator.Register<IMathSystem>(new MathSystem());
+            ServiceLocator.Register<IListSystem>(new ListSystem());
+            ServiceLocator.Register<ISpawnSystem>(new SpawnSystem(this.Content));
+            ServiceLocator.Register<ICameraSystem>(new CameraSystem(this.graphics, 50));
+            ServiceLocator.Register<IGunSystem>(new GunSystem());
+            ServiceLocator.Register<IControllerSystem>(new ControllerSystem());
 
             base.Initialize();
         }

@@ -12,7 +12,7 @@ namespace GeometryDestroyer.Parts.Impl.Enemies
     /// </remarks>
     public class Pinwheel : Enemy
     {
-        private const float RotationSpeed = 15.0f / 60.0f; // RPMs.
+        private const float RotationSpeed = 7.5f / 60.0f; // RPMs.
         private const float MovementSpeed = 5;
         private const float TwoPie = (float)Math.PI * 2.0f;
 

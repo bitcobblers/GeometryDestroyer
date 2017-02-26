@@ -62,7 +62,7 @@ namespace GeometryDestroyer.Parts.Impl.Components
         /// <inheritdoc />
         public override void Draw(GameTime gameTime)
         {
-            if(this.GameSystem.State != GameState.Running)
+            if (this.GameSystem.State != GameState.Running && this.GameSystem.State != GameState.Paused)
             {
                 return;
             }

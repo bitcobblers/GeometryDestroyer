@@ -39,6 +39,11 @@ namespace GeometryDestroyer.Parts.Impl.Components
         /// <inheritdoc />
         public override void Update(GameTime gameTime)
         {
+            if(this.GameSystem.State == GameState.Paused)
+            {
+                return;
+            }
+
             this.ListSystem.UpdateCollection(gameTime, this.particles);
             this.ListSystem.RemoveDeadCollection(this.particles);
         }
