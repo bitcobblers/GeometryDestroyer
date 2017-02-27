@@ -49,5 +49,11 @@ namespace GeometryDestroyer
         /// <param name="button">The button to check.</param>
         /// <returns>True if the button has been pressed.</returns>
         public bool IsKeyPressed(Buttons button) => this.currentState.IsButtonDown(button) && this.previousState.IsButtonUp(button);
+
+        /// <summary>
+        /// Checks whether the right trigger has been pressed.
+        /// </summary>
+        /// <returns>True if the right trigger has been pressed.</returns>
+        public bool IsTriggerPressed() => this.currentState.Triggers.Right > 0 && this.previousState.Triggers.Right == 0;
     }
 }

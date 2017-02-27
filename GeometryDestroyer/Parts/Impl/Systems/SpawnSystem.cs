@@ -22,7 +22,8 @@ namespace GeometryDestroyer.Parts.Impl.Systems
             this.enemyMap = new Dictionary<EnemyType, Func<Vector3, Enemy>>
             {
                 [EnemyType.Pinwheel] = p => new Pinwheel(content.Load<Model>("Models/pinwheel"), p),
-                [EnemyType.Spiral] = p => new Spiral(content.Load<Model>("Models/spiral"), p)
+                [EnemyType.Darter] = p => new Darter(content.Load<Model>("Models/darter"), p),
+                [EnemyType.Diamond] = p => new Diamond(content.Load<Model>("Models/diamond"), p)
             };
 
             this.enemyKeys = this.enemyMap.Keys.ToArray();

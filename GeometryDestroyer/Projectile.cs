@@ -1,4 +1,5 @@
-﻿using GeometryDestroyer.Parts;
+﻿using System;
+using GeometryDestroyer.Parts;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -7,7 +8,7 @@ namespace GeometryDestroyer
     /// <summary>
     /// Defines a projectile shot by a player.
     /// </summary>
-    public class Projectile : BoundedObject, ICanUpdate, ICanDie
+    public class Projectile : BoundedObject, ICanUpdate, ICanDie, ICanBeKilled
     {
         private readonly IEnemyComponent enemyComponent;
         private readonly IParticleComponent particleComponent;
@@ -62,8 +63,14 @@ namespace GeometryDestroyer
 
             if (this.IsAlive == false)
             {
-                this.particleComponent.AddExplosion(EmitterDescription.Explosion, this.Position, Color.Yellow, ExplosionSize.Small);
+                this.Kill();
             }
+        }
+
+        /// <inheritdoc />
+        public void Kill()
+        {
+            this.particleComponent.AddExplosion(EmitterDescription.Explosion, this.Position, Color.Yellow, ExplosionSize.Small);
         }
     }
 }

@@ -14,9 +14,8 @@ namespace GeometryDestroyer.Parts.Impl.Enemies
     {
         private const float RotationSpeed = 7.5f / 60.0f; // RPMs.
         private const float MovementSpeed = 5;
-        private const float TwoPie = (float)Math.PI * 2.0f;
 
-        private static Random rnd = new Random();
+        private static readonly Random rnd = new Random();
 
         private Vector3 direction;
 
@@ -42,11 +41,11 @@ namespace GeometryDestroyer.Parts.Impl.Enemies
         /// <inheritdoc />
         public override void Update(GameTime gameTime)
         {
-            this.Rotation += TwoPie * (RotationSpeed * (float)gameTime.ElapsedGameTime.TotalSeconds);
+            this.Rotation += MathHelper.TwoPi * (RotationSpeed * (float)gameTime.ElapsedGameTime.TotalSeconds);
 
-            if (this.Rotation >= TwoPie)
+            if (this.Rotation >= MathHelper.TwoPi)
             {
-                this.Rotation -= TwoPie;
+                this.Rotation -= MathHelper.TwoPi;
             }
 
             this.direction = this.BounceMovement(this.CameraSystem.Boundary, this.direction);
@@ -57,9 +56,10 @@ namespace GeometryDestroyer.Parts.Impl.Enemies
         }
 
         /// <inheritdoc />
-        protected override void OnDestroyed()
+        public override void Kill()
         {
-            this.ParticleComponent.AddExplosion(EmitterDescription.Explosion, this.Position, Color.Purple, ExplosionSize.Large);
+            base.Kill();
+            this.ParticleComponent.AddExplosion(EmitterDescription.Explosion, this.Position, Color.Purple, ExplosionSize.Medium);
         }
     }
 }

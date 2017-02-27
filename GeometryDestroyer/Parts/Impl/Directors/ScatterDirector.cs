@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
 using Microsoft.Xna.Framework;
-using GeometryDestroyer.Parts;
 using GeometryDestroyer.Parts.Impl.Enemies;
 
 namespace GeometryDestroyer.Parts.Impl.Directors
@@ -11,13 +10,12 @@ namespace GeometryDestroyer.Parts.Impl.Directors
     /// </summary>
     public class ScatterDirector : Director
     {
-        private const int SpawnConstant = 10;
+        private const int SpawnConstant = 5;
 
         private readonly Random rnd = new Random();
         private readonly Stopwatch spawnTimer = new Stopwatch();
 
         private TimeSpan spawnInterval;
-        private TimeSpan overflowSpan;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ScatterDirector" /> class.
@@ -49,7 +47,7 @@ namespace GeometryDestroyer.Parts.Impl.Directors
                 var x = rnd.Next(bounds.Left, bounds.Right);
                 var y = rnd.Next(bounds.Top, bounds.Bottom);
 
-                this.SpawnSystem.Random(EnemyType.Pinwheel, new Vector3(x, y, 0));
+                this.SpawnSystem.Random(EnemyType.Pinwheel | EnemyType.Darter | EnemyType.Diamond, new Vector3(x, y, 0));
                 this.spawnTimer.Restart();
             }
         }

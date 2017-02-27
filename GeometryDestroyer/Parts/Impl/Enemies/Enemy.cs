@@ -1,10 +1,11 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace GeometryDestroyer.Parts.Impl.Enemies
 {
 
-    public abstract class Enemy : BoundedObject, ICanDie
+    public abstract class Enemy : BoundedObject, ICanDie, ICanBeKilled
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="Enemy" /> class.
@@ -15,6 +16,7 @@ namespace GeometryDestroyer.Parts.Impl.Enemies
         {
             this.PlayerComponent = ServiceLocator.Get<IPlayerComponent>();
             this.ParticleComponent = ServiceLocator.Get<IParticleComponent>();
+            this.MathSystem = ServiceLocator.Get<IMathSystem>();
         }
 
         /// <summary>
@@ -26,6 +28,11 @@ namespace GeometryDestroyer.Parts.Impl.Enemies
         /// Gets the particle component to use.
         /// </summary>
         public IParticleComponent ParticleComponent { get; }
+
+        /// <summary>
+        /// Gets the math system to use.
+        /// </summary>
+        public IMathSystem MathSystem { get; }
 
         /// <inheritdoc />
         public virtual bool IsAlive => this.Health > 0;
@@ -51,7 +58,7 @@ namespace GeometryDestroyer.Parts.Impl.Enemies
 
             if (this.Health <= 0)
             {
-                this.OnDestroyed();
+                this.Kill();
                 return this.Value;
             }
             else
@@ -66,7 +73,7 @@ namespace GeometryDestroyer.Parts.Impl.Enemies
             base.Update(gameTime);
 
             // Check for collisions with players.
-            foreach (var player in this.PlayerComponent.Players)
+            foreach (var player in this.PlayerComponent.ActivePlayers)
             {
                 if (this.IntersectsWith(player))
                 {
@@ -76,11 +83,10 @@ namespace GeometryDestroyer.Parts.Impl.Enemies
             }
         }
 
-        /// <summary>
-        /// Triggered whenever an enemy is killed.
-        /// </summary>
-        protected virtual void OnDestroyed()
+        /// <inheritdoc />
+        public virtual void Kill()
         {
+            this.Health = 0;
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using GeometryDestroyer.Parts.Impl.Enemies;
 using Microsoft.Xna.Framework;
 
@@ -23,16 +24,19 @@ namespace GeometryDestroyer.Parts.Impl.Components
         public IListSystem ListSystem { get; private set; }
 
         /// <summary>
-        /// Gets the game system to use.
+        /// Gets the player component to use.
         /// </summary>
-        public IGameSystem GameSystem { get; private set; }
+        public IPlayerComponent PlayerComponent { get; private set; }
+
+        /// <inheritdoc />
+        public IEnumerable<Enemy> Enemies => this.enemies;
 
         /// <inheritdoc />
         public override void Initialize()
         {
             base.Initialize();
             this.ListSystem = ServiceLocator.Get<IListSystem>();
-            this.GameSystem = ServiceLocator.Get<IGameSystem>();
+            this.PlayerComponent = ServiceLocator.Get<IPlayerComponent>();
 
             this.GameSystem.GameReset += (s, e) => this.enemies.Clear();
             this.GameSystem.StateChanged += (s, e) =>
@@ -41,7 +45,19 @@ namespace GeometryDestroyer.Parts.Impl.Components
                 {
                     foreach (var enemy in this.enemies)
                     {
-                        enemy.Damage(int.MaxValue);
+                        enemy.Kill();
+                    }
+
+                    foreach(var player in this.PlayerComponent.Players)
+                    {
+                        player.PlayerKilled -= this.PlayerKilled;
+                    }
+                }
+                else if(e == GameState.Starting)
+                {
+                    foreach(var player in this.PlayerComponent.Players)
+                    {
+                        player.PlayerKilled += this.PlayerKilled;
                     }
                 }
             };
@@ -74,6 +90,20 @@ namespace GeometryDestroyer.Parts.Impl.Components
         public void AddEnemy(Enemy enemy) => this.enemies.AddFirst(enemy);
 
         /// <inheritdoc />
-        public IEnumerable<Enemy> Enemies => this.enemies;
+        public void KillAll(Player player)
+        {
+            foreach(var enemy in this.enemies)
+            {
+                player.Score += enemy.Damage(int.MaxValue);
+            }
+        }
+
+        private void PlayerKilled(object sender, EventArgs e)
+        {
+            foreach (var enemy in this.enemies)
+            {
+                enemy.Kill();
+            }
+        }
     }
 }

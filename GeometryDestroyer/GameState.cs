@@ -11,7 +11,12 @@
         NotStarted,
 
         /// <summary>
-        /// Game is in progress.
+        /// Game engine is about to start (fires once per game).
+        /// </summary>
+        Starting,
+
+        /// <summary>
+        /// Game is in progress (fires at startup and whenever the game is unpaused).
         /// </summary>
         Running,
 

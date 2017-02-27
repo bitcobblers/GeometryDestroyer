@@ -51,6 +51,9 @@
     <Compile Include="Parts\IMathSystem.cs" />
     <Compile Include="Parts\Impl\Components\BackgroundComponent.cs" />
     <Compile Include="Parts\Impl\Components\BaseDrawableGameComponent.cs" />
+    <Compile Include="Parts\Impl\Directors\CornerDirector.cs" />
+    <Compile Include="Parts\Impl\Enemies\Darter.cs" />
+    <Compile Include="Parts\Impl\Enemies\Diamond.cs" />
     <Compile Include="Parts\Impl\Guns\ConcentratedGun.cs" />
     <Compile Include="Parts\Impl\Guns\Gun.cs" />
     <Compile Include="Parts\Impl\Guns\ScatterGun.cs" />
@@ -65,12 +68,10 @@
     <Compile Include="Parts\Impl\Components\ParticleComponent.cs" />
     <Compile Include="Parts\Impl\Directors\Director.cs" />
     <Compile Include="Parts\Impl\Directors\ScatterDirector.cs" />
-    <Compile Include="Parts\Impl\Directors\SpiralDirector.cs" />
     <Compile Include="EmitterDescription.cs" />
     <Compile Include="Parts\Impl\Enemies\Enemy.cs" />
     <Compile Include="Parts\Impl\Enemies\EnemyType.cs" />
     <Compile Include="Parts\Impl\Enemies\Pinwheel.cs" />
-    <Compile Include="Parts\Impl\Enemies\Spiral.cs" />
     <Compile Include="MainGame.cs" />
     <Compile Include="GameController.cs" />
     <Compile Include="ICanDie.cs" />

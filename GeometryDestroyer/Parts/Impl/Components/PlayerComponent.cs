@@ -8,7 +8,7 @@ namespace GeometryDestroyer.Parts.Impl.Components
 {
     public class PlayerComponent : BaseDrawableGameComponent, IPlayerComponent
     {
-        private readonly static TimeSpan RespawnInterval = TimeSpan.FromSeconds(5);
+        private readonly static TimeSpan RespawnInterval = TimeSpan.FromSeconds(2.5);
 
         private readonly List<Player> players = new List<Player>();
         private Model playerModel;
@@ -22,7 +22,6 @@ namespace GeometryDestroyer.Parts.Impl.Components
             ServiceLocator.Register<IPlayerComponent>(this);
         }
 
-        public IGameSystem GameSystem { get; private set; }
         public IControllerSystem ControllerSystem { get; private set; }
         public IGunSystem GunSystem { get; private set; }
         public IDirectorComponent DirectorSystem { get; private set; }
@@ -31,7 +30,7 @@ namespace GeometryDestroyer.Parts.Impl.Components
         public int AvailablePlayers => this.players.Count(p => p.LivesRemaining >= 0);
 
         /// <inheritdoc />
-        public int ActivePlayers => this.players.Count(p => p.IsActive);
+        public IEnumerable<Player> ActivePlayers => this.players.Where(p => p.IsActive);
 
         /// <inheritdoc />
         public IEnumerable<Player> Players => this.players;
@@ -42,7 +41,6 @@ namespace GeometryDestroyer.Parts.Impl.Components
             base.Initialize();
 
             this.playerModel = this.Game.Content.Load<Model>("Models/Player");
-            this.GameSystem = ServiceLocator.Get<IGameSystem>();
             this.ControllerSystem = ServiceLocator.Get<IControllerSystem>();
             this.GunSystem = ServiceLocator.Get<IGunSystem>();
             this.DirectorSystem = ServiceLocator.Get<IDirectorComponent>();

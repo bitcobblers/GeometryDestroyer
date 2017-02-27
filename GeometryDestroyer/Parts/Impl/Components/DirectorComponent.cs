@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using GeometryDestroyer.Parts.Impl.Directors;
 using Microsoft.Xna.Framework;
 
@@ -44,7 +45,7 @@ namespace GeometryDestroyer.Parts.Impl.Components
             this.allDirectors = new Director[]
             {
                 new ScatterDirector(this.SpawnSystem, this.CameraSystem),
-                new SpiralDirector(this.SpawnSystem, this.CameraSystem)
+                new CornerDirector(this.SpawnSystem, this.CameraSystem)
             };
         }
 
@@ -53,13 +54,13 @@ namespace GeometryDestroyer.Parts.Impl.Components
         {
             this.currentDirector = null;
             this.levelTime = TimeSpan.FromSeconds(30).TotalMilliseconds;
-            this.level = 0;
+            this.level = 1;
         }
 
         /// <inheritdoc />
         public override void Update(GameTime gameTime)
         {
-            if (this.SuppressUpdate || this.PlayerComponent.ActivePlayers == 0)
+            if (this.SuppressUpdate || this.PlayerComponent.ActivePlayers.Count() == 0)
             {
                 return;
             }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -71,7 +72,7 @@ namespace GeometryDestroyer.Parts.Impl.Components
                 case GameState.Running:
                     this.DrawScores();
 
-                    if (this.PlayerComponent.ActivePlayers == 0)
+                    if (this.PlayerComponent.ActivePlayers.Count() == 0)
                     {
                         this.DrawCenteredText(this.titleFont, "Get Ready...", 0);
                     }
@@ -99,7 +100,7 @@ namespace GeometryDestroyer.Parts.Impl.Components
             // Render the players and their scores.
             foreach (var player in this.PlayerComponent.Players)
             {
-                this.spriteBatch.DrawString(this.overlayFont, $"Player {player.Id}: Lives {Math.Max(player.LivesRemaining, 0)}, Score: {player.Score:N0}", new Vector2(x, y), Color.White);
+                this.spriteBatch.DrawString(this.overlayFont, $"Player {player.Id}: Lives {Math.Max(player.LivesRemaining, 0)}, Bombs: {player.Bombs}, Score: {player.Score:N0}", new Vector2(x, y), Color.White);
                 y += 20;
             }
         }

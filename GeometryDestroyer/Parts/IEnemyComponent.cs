@@ -16,5 +16,11 @@ namespace GeometryDestroyer.Parts
         /// </summary>
         /// <param name="enemy">The enemy to add to the system.</param>
         void AddEnemy(Enemy enemy);
+
+        /// <summary>
+        /// Kills all of the enemies on the screen, crediting the player.
+        /// </summary>
+        /// <param name="player">The player to credit.</param>
+        void KillAll(Player player);
     }
 }

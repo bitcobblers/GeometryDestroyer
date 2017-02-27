@@ -13,11 +13,10 @@ namespace GeometryDestroyer
         private static Random rnd = new Random();
 
         private readonly Vector3 color;
+        private readonly Matrix positionMatrix;
+        private readonly Matrix rotationMatrix;
 
         private readonly float moveBy;
-        private readonly float rotateX;
-        private readonly float rotateY;
-        private readonly float rotateZ;
         private readonly float scaleChange;
 
         private float offset = 0.0f;
@@ -35,12 +34,14 @@ namespace GeometryDestroyer
             : base(model)
         {
             this.Position = position;
-
             this.moveBy = ((float)(rnd.NextDouble() / description.SpeedFactor) * (rnd.Next(0, 2) == 0 ? -1.0f : 1.0f)) * 2;
 
-            this.rotateX = MathHelper.ToRadians(rnd.Next(0, 360));
-            this.rotateY = MathHelper.ToRadians(rnd.Next(0, 360));
-            this.rotateZ = MathHelper.ToRadians(rnd.Next(0, 360));
+            float rotateX = MathHelper.ToRadians(rnd.Next(0, 360));
+            float rotateY = MathHelper.ToRadians(rnd.Next(0, 360));
+            float rotateZ = MathHelper.ToRadians(rnd.Next(0, 360));
+
+            this.rotationMatrix = Matrix.CreateRotationX(rotateX) * Matrix.CreateRotationY(rotateY) * Matrix.CreateRotationZ(rotateZ);
+            this.positionMatrix = Matrix.CreateTranslation(this.Position);
 
             this.timeToLive = rnd.Next(description.MinTimeToLive, description.MaxTimeToLive);
             this.color = color.ToVector3();
@@ -51,12 +52,13 @@ namespace GeometryDestroyer
         public bool IsAlive => this.timeToLive > 0;
 
         /// <inheritdoc />
-        public void Update(GameTime gameTime)
+        public override void Update(GameTime gameTime)
         {
             this.timeToLive--;
             this.offset += this.moveBy;
             this.scaleFactor -= this.scaleChange;
-            this.World = Matrix.CreateScale(this.scaleFactor) * Matrix.CreateTranslation(new Vector3(0.0f, this.offset, 0.0f)) * Matrix.CreateRotationX(this.rotateX) * Matrix.CreateRotationY(this.rotateY) * Matrix.CreateRotationZ(this.rotateZ) * Matrix.CreateTranslation(this.Position);
+
+            this.World = Matrix.CreateScale(this.scaleFactor) * Matrix.CreateTranslation(new Vector3(0.0f, this.offset, 0.0f)) * this.rotationMatrix * this.positionMatrix;
         }
 
         /// <inheritdoc />

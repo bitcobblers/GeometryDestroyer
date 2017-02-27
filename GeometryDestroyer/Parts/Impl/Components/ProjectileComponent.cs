@@ -27,6 +27,18 @@ namespace GeometryDestroyer.Parts.Impl.Components
             this.model = this.Game.Content.Load<Model>("Models/projectile");
             this.ListSystem = ServiceLocator.Get<IListSystem>();
             this.GameSystem.GameReset += (s, e) => this.projectiles.Clear();
+            this.GameSystem.StateChanged += (s, e) =>
+            {
+                if (e == GameState.GameOver)
+                {
+                    foreach (var projectile in this.projectiles)
+                    {
+                        projectile.Kill();
+                    }
+
+                    this.projectiles.Clear();
+                }
+            };
         }
 
         /// <inheritdoc />

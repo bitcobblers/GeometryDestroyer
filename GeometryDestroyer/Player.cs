@@ -13,8 +13,9 @@ namespace GeometryDestroyer
     {
         private readonly IMathSystem mathSystem;
         private readonly IGunSystem gunSystem;
-        private readonly IDirectorComponent directorSystem;
+        private readonly IDirectorComponent directorComponent;
         private readonly IParticleComponent particleComponent;
+        private readonly IEnemyComponent enemyComponent;
         private readonly GameController controller;
         private readonly Random rnd = new Random();
         private Gun currentGun;
@@ -23,6 +24,11 @@ namespace GeometryDestroyer
         /// Triggered when the player has been eliminated from the game.
         /// </summary>
         public event EventHandler PlayerEliminated = delegate { };
+
+        /// <summary>
+        /// Triggered whenever the player dies.
+        /// </summary>
+        public event EventHandler PlayerKilled = delegate { };
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Player" /> class.
@@ -35,11 +41,12 @@ namespace GeometryDestroyer
             this.controller = controller;
             this.mathSystem = ServiceLocator.Get<IMathSystem>();
             this.gunSystem = ServiceLocator.Get<IGunSystem>();
-            this.directorSystem = ServiceLocator.Get<IDirectorComponent>();
+            this.directorComponent = ServiceLocator.Get<IDirectorComponent>();
             this.particleComponent = ServiceLocator.Get<IParticleComponent>();
+            this.enemyComponent = ServiceLocator.Get<IEnemyComponent>();
 
             this.currentGun = this.gunSystem.GetGun(this);
-            this.directorSystem.LevelIncreased += DirectorSystem_LevelIncreased;
+            this.directorComponent.LevelIncreased += DirectorSystem_LevelIncreased;
         }
 
         /// <summary>
@@ -63,7 +70,12 @@ namespace GeometryDestroyer
         /// <summary>
         /// Gets or sets the number of lives remaining for the player.
         /// </summary>
-        public int LivesRemaining { get; set; } = 1;
+        public int LivesRemaining { get; set; } = 3;
+
+        /// <summary>
+        /// Gets the number of bumbs the player has.
+        /// </summary>
+        public int Bombs { get; private set; } = 3;
 
         /// <summary>
         /// Gets or sets a value indicating whether the player is active.
@@ -93,6 +105,12 @@ namespace GeometryDestroyer
                 this.Rotation = this.mathSystem.AngleOf(rotateX, rotateY);
             }
 
+            if (this.controller.IsTriggerPressed() && this.Bombs > 0)
+            {
+                this.enemyComponent.KillAll(this);
+                this.Bombs--;
+            }
+
             // Create any new projectils.
             if (shootX != 0 || shootY != 0)
             {
@@ -118,6 +136,8 @@ namespace GeometryDestroyer
             {
                 this.PlayerEliminated(this, EventArgs.Empty);
             }
+
+            this.PlayerKilled(this, EventArgs.Empty);
         }
 
         /// <inheritdoc />
@@ -135,7 +155,7 @@ namespace GeometryDestroyer
         {
             if (disposing)
             {
-                this.directorSystem.LevelIncreased -= this.DirectorSystem_LevelIncreased;
+                this.directorComponent.LevelIncreased -= this.DirectorSystem_LevelIncreased;
             }
         }
 

@@ -169,7 +169,7 @@ namespace GeometryDestroyer
         /// <returns>An updated vector to translate the object by.</returns>
         protected Vector3 BounceMovement(Rectangle boundary, Vector3 direction)
         {
-            if (this.IsWithinBounds(boundary) == true)
+            if (this.IsWithinBounds(boundary))
             {
                 return direction;
             }
@@ -188,6 +188,34 @@ namespace GeometryDestroyer
                     (Position.Y > boundary.Bottom && direction.Y > 0))
                 {
                     y = -y;
+                }
+
+                return new Vector3(x, y, direction.Z);
+            }
+        }
+
+        protected Vector3 ReverseMovement(Rectangle boundary, Vector3 direction)
+        {
+            if(this.IsWithinBounds(boundary))
+            {
+                return direction;
+            }
+            else
+            {
+                float x = direction.X;
+                float y = direction.Y;
+
+                if ((Position.X < boundary.Left && direction.X < 0) ||
+                    (Position.X > boundary.Right && direction.X > 0))
+                {
+                    return new Vector3(-x, -y, direction.Z);
+                }
+
+                if ((Position.Y < boundary.Top && direction.Y < 0) ||
+                    (Position.Y > boundary.Bottom && direction.Y > 0))
+                {
+                    //y = -y;
+                    return new Vector3(-x, -y, direction.Z);
                 }
 
                 return new Vector3(x, y, direction.Z);

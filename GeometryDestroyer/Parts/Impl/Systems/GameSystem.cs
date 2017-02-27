@@ -33,6 +33,7 @@ namespace GeometryDestroyer.Parts.Impl.Systems
         public void Reset()
         {
             this.GameReset(this, EventArgs.Empty);
+            this.State = GameState.Starting;
             this.State = GameState.Running;
         }
 

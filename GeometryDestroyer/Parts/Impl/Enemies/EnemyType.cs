@@ -13,6 +13,7 @@ namespace GeometryDestroyer.Parts.Impl.Enemies
     {
         Any,
         Pinwheel,
-        Spiral
+        Darter,
+        Diamond
     }
 }

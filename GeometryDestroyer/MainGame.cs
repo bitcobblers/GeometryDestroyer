@@ -49,7 +49,7 @@ namespace GeometryDestroyer
             ServiceLocator.Register<IMathSystem>(new MathSystem());
             ServiceLocator.Register<IListSystem>(new ListSystem());
             ServiceLocator.Register<ISpawnSystem>(new SpawnSystem(this.Content));
-            ServiceLocator.Register<ICameraSystem>(new CameraSystem(this.graphics, 50));
+            ServiceLocator.Register<ICameraSystem>(new CameraSystem(this.graphics, 75));
             ServiceLocator.Register<IGunSystem>(new GunSystem());
             ServiceLocator.Register<IControllerSystem>(new ControllerSystem());
 
@@ -66,6 +66,8 @@ namespace GeometryDestroyer
             this.screenTarget = new RenderTarget2D(this.GraphicsDevice, this.graphics.PreferredBackBufferWidth, this.graphics.PreferredBackBufferHeight, false, this.graphics.PreferredBackBufferFormat, DepthFormat.Depth24);
             this.spriteBatch = new SpriteBatch(GraphicsDevice);
             this.pauseBackgroundEffect = this.Content.Load<Effect>("Effects/PauseBackground");
+
+            base.LoadContent();
         }
 
         /// <inheritdoc />
